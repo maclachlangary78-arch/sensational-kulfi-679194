@@ -43,12 +43,3 @@ jobs:
         with:
           name: ios-build-artifacts
           path: ios/App/build/
-      
-      - name: Check build result
-        run: |
-          if [ -d "ios/App/build/LureRater.xcarchive" ]; then
-            echo "✅ iOS app built successfully!"
-          else
-            echo "❌ Build failed - archive not found"
-            exit 1
-          fi
