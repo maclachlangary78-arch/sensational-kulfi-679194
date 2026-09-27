@@ -1,1 +1,54 @@
+name: iOS build
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build web app
+        run: npm run build
+      
+      - name: Sync Capacitor to iOS
+        run: npx cap sync ios
+      
+      - name: Build iOS app
+        run: |
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -derivedDataPath build \
+            -archivePath build/LureRater.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO
+      
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-artifacts
+          path: ios/App/build/
+      
+      - name: Check build result
+        run: |
+          if [ -d "ios/App/build/LureRater.xcarchive" ]; then
+            echo "✅ iOS app built successfully!"
+          else
+            echo "❌ Build failed - archive not found"
+            exit 1
+          fi
