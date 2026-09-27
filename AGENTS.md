@@ -19,7 +19,7 @@ Google Play with Capacitor (`capacitor.config.json`, `webDir: dist`). The same b
 - `src/lib/telemetry.js` — GPS via `@capacitor/geolocation` + Open-Meteo marine SST.
 - `src/lib/units.js` — metric/imperial helpers. **All data is stored metric (°C, metres)**; conversion is display/input only.
 - `netlify/functions/` — `lures.ts`, `strikes.ts`, `spreads.ts`, `photos.ts` (routes `/api/lures`, `/api/strikes`,
-  `/api/spreads`, `/api/photos/:key`).
+  `/api/spreads`, `/api/photos/:key`), and `identify-lure.ts` (`/api/identify-lure`, AI lure ID from a photo).
 - `netlify/lib/http.ts` — shared CORS/JSON helpers (kept outside `functions/` so it isn't deployed as a function).
 - `db/schema.ts` — Drizzle schema; migrations in `netlify/database/migrations/` (generate with
   `npx drizzle-kit generate --name <verb_description>`; never hand-edit or apply them).
@@ -46,6 +46,10 @@ Google Play with Capacitor (`capacitor.config.json`, `webDir: dist`). The same b
   The API only enforces it on `POST /api/lures` so queued offline strikes from older builds aren't dropped.
 - Hooks are optional everywhere. `HOOKS` in `src/lib/constants.js` gives each hook type its own sizes: Pakula Dojo
   hooks use gape sizes (e.g. "Pakula Dojo Light" size `25`), the rest use `9/0`-style sizes.
+- **AI lure ID.** `CatalogPicker` has an "Identify from a photo" button. The resized JPEG goes to `/api/identify-lure`,
+  which sends it with the built-in catalogue to Claude (`claude-sonnet-5`) through Netlify AI Gateway (no API key).
+  The reply is snapped to catalogue names/colours/sizes where they match and only fills fields the model could tell;
+  the angler checks/fills the rest. In My Lures that photo becomes the new lure's thumbnail. Needs a connection.
 - Depth and tide are manual inputs; only position and sea temperature are auto-filled.
 - Port/starboard rigger buttons map to the same `Long Rigger`/`Short Rigger` position value.
 

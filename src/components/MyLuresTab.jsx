@@ -3,7 +3,7 @@ import { Check, Fish, Plus, Search, Trash2 } from 'lucide-react';
 import LureThumb from './LureThumb';
 import { CatalogPicker, HookPicker } from './RigFields';
 import { POSITIONS } from '../lib/constants';
-import { addLure, deleteLure } from '../lib/api';
+import { addLure, deleteLure, uploadPhoto } from '../lib/api';
 import { lureStats } from '../lib/stats';
 
 const field = 'w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500';
@@ -24,8 +24,11 @@ export default function MyLuresTab({ lures, strikes, spread, onAddToSpread, onCh
     if (!form.name.trim()) return notify('Pick or type a lure first', 'error');
     if (!form.size.trim()) return notify('Choose the lure size', 'error');
     try {
-      await addLure({ ...form, hookSize: form.hookType ? form.hookSize : null });
-      setForm({ ...form, name: '', size: '' });
+      // A photo used to identify the lure becomes its thumbnail.
+      const { photo, ...lure } = form;
+      const photoKey = photo ? await uploadPhoto(photo.blob) : null;
+      await addLure({ ...lure, photoKey, hookSize: form.hookType ? form.hookSize : null });
+      setForm({ ...lure, name: '', size: '' });
       setAdding(false);
       notify('Lure added to My Lures');
       onChange();

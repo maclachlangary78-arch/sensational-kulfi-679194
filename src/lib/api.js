@@ -56,6 +56,14 @@ export async function uploadPhoto(blob) {
   return key;
 }
 
+// Asks AI to name the lure in a photo; returns { isLure, brand, model, colour, size, confidence, note }.
+export const identifyLure = (blob) =>
+  request('/api/identify-lure', {
+    method: 'POST',
+    headers: { 'Content-Type': 'image/jpeg' },
+    body: blob,
+  });
+
 // Loads lures, strikes and saved spreads, falling back to the last cached copy when offshore without signal.
 export async function loadData() {
   try {

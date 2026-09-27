@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Fish, Plus, X } from 'lucide-react';
+import { Camera, Fish, Loader2, Plus, Sparkles, X } from 'lucide-react';
 import { HOOK_TYPES, LURE_SIZES, defaultHookSize, hookSizesFor } from '../lib/constants';
 import { NEW_LURE } from '../lib/spread';
-import { LURE_CATALOG, coloursFor, joinName, sizesFor, splitName } from '../lib/catalog';
+import { LURE_CATALOG, coloursFor, joinName, matchModel, sizesFor, splitName } from '../lib/catalog';
+import { identifyLure } from '../lib/api';
+import { resizePhoto } from '../lib/photo';
 
 const field = 'w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500';
 
@@ -94,10 +96,101 @@ export function HookPicker({ hookType, hookSize, onChange }) {
 }
 
 const OTHER = '__other';
+const clean = (s = '') => s.replace(/ - /g, ' ').trim();
+const sameText = (a, b) => a.toLowerCase() === b.toLowerCase();
+
+// Turns an AI suggestion into picker values, snapping to catalogue names, colours and sizes where they match.
+function fromSuggestion(s) {
+  const typed = clean([s.brand, s.model].filter(Boolean).join(' '));
+  const model = matchModel(typed);
+  const base = model ? model.name : typed;
+  const { brand, common } = coloursFor(model?.brand);
+  const colour = [...brand, ...common].find((c) => sameText(c, s.colour)) || clean(s.colour);
+  const size = model?.sizes.find((z) => sameText(z.value, s.size))?.value || clean(s.size);
+  return { base, colour, size, model };
+}
+
+const CONFIDENCE = {
+  high: 'bg-emerald-900/50 text-emerald-300',
+  medium: 'bg-amber-900/50 text-amber-300',
+  low: 'bg-slate-800 text-slate-400',
+};
+
+// "Don't know this lure?" — snap a photo and AI fills in whatever it can recognise.
+function PhotoIdentify({ onResult }) {
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setBusy(true);
+    setResult(null);
+    try {
+      const photo = await resizePhoto(file);
+      const s = await identifyLure(photo.blob);
+      const picked = s.isLure ? fromSuggestion(s) : null;
+      if (picked?.base) onResult(picked, photo);
+      setResult({ ...s, picked, preview: photo.dataUrl });
+    } catch (err) {
+      setResult({ error: err.status ? err.message : 'You need a connection to identify a lure' });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const p = result?.picked;
+  const missing = p ? [!p.colour && 'colour', !p.size && 'size'].filter(Boolean) : [];
+
+  return (
+    <div className="space-y-2">
+      <label
+        className={`w-full py-2 rounded-lg border border-dashed border-cyan-800/70 bg-cyan-950/30 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 ${
+          busy ? 'opacity-70' : 'cursor-pointer'
+        }`}
+      >
+        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+        {busy ? 'Identifying lure…' : "Don't know it? Identify from a photo"}
+        <input type="file" accept="image/*" capture="environment" onChange={handlePhoto} disabled={busy} className="hidden" />
+      </label>
+
+      {result && (
+        <div className="flex gap-2.5 bg-slate-900 border border-slate-800 rounded-lg p-2">
+          {result.preview && <img src={result.preview} alt="" className="w-12 h-12 rounded-md object-cover shrink-0" />}
+          <div className="min-w-0 text-[11px] leading-snug">
+            {result.error ? (
+              <p className="text-red-300">{result.error}</p>
+            ) : !result.isLure ? (
+              <p className="text-slate-300">That doesn't look like a lure — try a closer photo.</p>
+            ) : !p?.base ? (
+              <p className="text-slate-300">Couldn't tell which lure this is — pick or type it below.</p>
+            ) : (
+              <>
+                <p className="text-slate-100 font-bold flex items-center gap-1 flex-wrap">
+                  <Sparkles className="w-3 h-3 text-cyan-400" /> {joinName(p.base, p.colour)}
+                  {p.size && <span className="text-slate-400 font-normal">· {p.size}</span>}
+                  <span className={`text-[10px] px-1.5 rounded-full font-bold ${CONFIDENCE[result.confidence]}`}>
+                    {result.confidence}
+                  </span>
+                </p>
+                <p className="text-slate-400">
+                  AI guess — check it below{missing.length > 0 && ` and add the ${missing.join(' and ')}`}.
+                </p>
+              </>
+            )}
+            {result.note && !result.error && <p className="text-slate-500 mt-0.5">{result.note}</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 const step = 'block text-[11px] text-slate-400 mb-1';
 
 // Step-by-step lure entry: 1. lure (brand + model from the catalogue, or typed), 2. colour, 3. size.
 // The name is saved as "Pakula Sprocket - Lumo" so it can be read back into these steps later.
+// A photo can pre-fill the steps; the resized photo is passed on as `photo` ({ blob, dataUrl }).
 export function CatalogPicker({ name, size, onChange }) {
   const { base, colour, model } = splitName(name);
   const [typingLure, setTypingLure] = useState(Boolean(base && !model));
@@ -140,8 +233,21 @@ export function CatalogPicker({ name, size, onChange }) {
     if (v !== OTHER) onChange({ size: v });
   };
 
+  const applySuggestion = (p, photo) => {
+    setTypingLure(!p.model);
+    setTypingColour(false);
+    setTypingSize(false);
+    onChange({
+      name: joinName(p.base, p.colour),
+      size: p.size || (!p.model || p.model.sizes.some((s) => s.value === size) ? size : p.model.sizes.length === 1 ? p.model.sizes[0].value : ''),
+      photo,
+      ...(p.model?.position ? { defaultPosition: p.model.position } : {}),
+    });
+  };
+
   return (
     <div className="space-y-2.5">
+      <PhotoIdentify onResult={applySuggestion} />
       <div>
         <label className={step}>1. Lure</label>
         <select value={lureValue} onChange={(e) => pickLure(e.target.value)} className={field}>
