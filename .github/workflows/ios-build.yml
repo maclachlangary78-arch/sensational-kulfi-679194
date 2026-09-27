@@ -1,4 +1,4 @@
-name: iOS build
+name: iOS build and upload to App Store
 
 on:
   workflow_dispatch:
@@ -36,6 +36,22 @@ jobs:
             -archivePath build/LureRater.xcarchive \
             archive \
             CODE_SIGNING_ALLOWED=NO
+      
+      - name: Setup App Store Connect credentials
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "${{ secrets.APPSTORE_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_API_KEY_ID }}.p8
+      
+      - name: Upload to App Store Connect
+        run: |
+          cd ios/App/build
+          xcrun altool --upload-app \
+            --type ios \
+            --file LureRater.xcarchive \
+            --apiKey ${{ secrets.APPSTORE_API_KEY_ID }} \
+            --apiIssuer ${{ secrets.APPSTORE_API_ISSUER_ID }} \
+            --bundle-id ${{ secrets.APP_BUNDLE_ID }} \
+            --team-id ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
       
       - name: Upload build artifacts
         if: always()
