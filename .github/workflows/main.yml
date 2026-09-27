@@ -1,0 +1,61 @@
+name: iOS build and upload to App Store
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build web app
+        run: npm run build
+      
+      - name: Sync Capacitor to iOS
+        run: npx cap sync ios
+      
+      - name: Build iOS app
+        run: |
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -derivedDataPath build \
+            -archivePath build/LureRater.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO
+      
+      - name: Setup App Store Connect credentials
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "${{ secrets.APPSTORE_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_API_KEY_ID }}.p8
+      
+      - name: Upload to App Store Connect
+        run: |
+          cd ios/App/build
+          xcrun altool --upload-app \
+            --type ios \
+            --file LureRater.xcarchive \
+            --apiKey ${{ secrets.APPSTORE_API_KEY_ID }} \
+            --apiIssuer ${{ secrets.APPSTORE_API_ISSUER_ID }} \
+            --bundle-id ${{ secrets.APP_BUNDLE_ID }} \
+            --team-id ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
+      
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-artifacts
+          path: ios/App/build/
