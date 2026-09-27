@@ -1,0 +1,12 @@
+{
+  "appId": "com.lurerater.app",
+  "appName": "LureRater",
+  "webDir": "dist",
+  "backgroundColor": "#020617",
+  "ios": {
+    "contentInset": "never"
+  },
+  "android": {
+    "backgroundColor": "#020617"
+  }
+}
