@@ -228,6 +228,13 @@ const BY_NAME = new Map(
 
 export const findModel = (base) => BY_NAME.get(base) || null;
 
+// Case-insensitive match against the catalogue, for names that come from AI photo suggestions.
+export function matchModel(base = '') {
+  const b = base.trim().toLowerCase();
+  for (const m of BY_NAME.values()) if (m.name.toLowerCase() === b) return m;
+  return null;
+}
+
 // Brand favourites first, then the rest of the usual colours without repeats.
 export function coloursFor(brand) {
   const b = LURE_CATALOG.find((x) => x.brand === brand);

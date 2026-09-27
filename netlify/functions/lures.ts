@@ -56,7 +56,7 @@ export default async (req: Request) => {
         size,
         hookSize: optText(body?.hookSize, 10),
         hookType: optText(body?.hookType, 60),
-        photoKey: body?.photoKey ?? null,
+        photoKey: optText(body?.photoKey, 120),
       })
       .returning();
     return json(row, 201);
