@@ -1,4 +1,4 @@
-name: iOS build and upload to App Store
+name: iOS build and test
 
 on:
   workflow_dispatch:
@@ -6,54 +6,51 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    
+
     steps:
-      - name: Checkout code
+      - name: Check out repository
         uses: actions/checkout@v4
-      
-      - name: Setup Node.js
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build web app
         run: npm run build
-      
-      - name: Sync Capacitor to iOS
+
+      - name: Sync Capacitor iOS project
         run: npx cap sync ios
-      
-      - name: Build iOS app
+
+      - name: Build and test default scheme on an iPhone simulator
+        working-directory: ios/App
         run: |
-          cd ios/App
+          set -euo pipefail
+
+          DESTINATION="$(xcodebuild -workspace App.xcworkspace -scheme App -showdestinations 2>/dev/null \
+            | sed -n 's/.*platform:iOS Simulator,.*name:\([^,]*\).*/\1/p' \
+            | head -n 1)"
+
+          if [ -z "$DESTINATION" ]; then
+            echo "No iPhone simulator was found."
+            xcrun simctl list devices available
+            exit 1
+          fi
+
+          echo "Using simulator: $DESTINATION"
+
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
-            -configuration Release \
+            -destination "platform=iOS Simulator,name=$DESTINATION" \
+            -configuration Debug \
             -derivedDataPath build \
-            -archivePath build/LureRater.xcarchive \
-            archive \
-            CODE_SIGNING_ALLOWED=NO
-      
-      - name: Setup App Store Connect credentials
-        run: |
-          mkdir -p ~/.appstoreconnect/private_keys
-          echo "${{ secrets.APPSTORE_API_KEY }}" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_API_KEY_ID }}.p8
-      
-      - name: Upload to App Store Connect
-        run: |
-          cd ios/App/build
-          xcrun altool --upload-app \
-            --type ios \
-            --file LureRater.xcarchive \
-            --apiKey ${{ secrets.APPSTORE_API_KEY_ID }} \
-            --apiIssuer ${{ secrets.APPSTORE_API_ISSUER_ID }} \
-            --bundle-id ${{ secrets.APP_BUNDLE_ID }} \
-            --team-id ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
-      
-      - name: Upload build artifacts
+            build test
+
+      - name: Save build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
