@@ -43,13 +43,18 @@ jobs:
           platform: iOS Simulator
         run: |
           set -euo pipefail
-          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone[^()]*' | head -1 | sed 's/[[:space:]]*$//; s/[[:space:]] Simulator$//')
-          test -n "$device"
           if [ "$scheme" = default ]; then scheme=$(cat default); fi
+          device_id=$(xcodebuild -project App.xcodeproj -scheme "$scheme" -showdestinations 2>/dev/null | sed -n 's/.*platform:iOS Simulator,.*id:\([^,]*\),.*name:iPhone[^,}]*.*/\1/p' | head -1)
+          if [ -z "$device_id" ]; then
+            echo "No iPhone simulator destination was found for scheme $scheme."
+            xcodebuild -project App.xcodeproj -scheme "$scheme" -showdestinations
+            exit 1
+          fi
+          echo "Using simulator destination id: $device_id"
           xcodebuild build-for-testing \
             -project App.xcodeproj \
             -scheme "$scheme" \
-            -destination "platform=$platform,name=$device"
+            -destination "platform=$platform,id=$device_id"
 
       - name: Test
         working-directory: ios/App
@@ -58,10 +63,15 @@ jobs:
           platform: iOS Simulator
         run: |
           set -euo pipefail
-          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone[^()]*' | head -1 | sed 's/[[:space:]]*$//; s/[[:space:]] Simulator$//')
-          test -n "$device"
           if [ "$scheme" = default ]; then scheme=$(cat default); fi
+          device_id=$(xcodebuild -project App.xcodeproj -scheme "$scheme" -showdestinations 2>/dev/null | sed -n 's/.*platform:iOS Simulator,.*id:\([^,]*\),.*name:iPhone[^,}]*.*/\1/p' | head -1)
+          if [ -z "$device_id" ]; then
+            echo "No iPhone simulator destination was found for scheme $scheme."
+            xcodebuild -project App.xcodeproj -scheme "$scheme" -showdestinations
+            exit 1
+          fi
+          echo "Using simulator destination id: $device_id"
           xcodebuild test-without-building \
             -project App.xcodeproj \
             -scheme "$scheme" \
-            -destination "platform=$platform,name=$device"
+            -destination "platform=$platform,id=$device_id"
