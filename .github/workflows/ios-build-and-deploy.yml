@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: macos-latest
@@ -64,7 +67,10 @@ jobs:
       - name: Set build number
         working-directory: ios/App
         run: |
-          xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"
+          if ! xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"; then
+            echo "::warning::agvtool failed, falling back to direct CURRENT_PROJECT_VERSION update."
+            sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = ${GITHUB_RUN_NUMBER};/g" App.xcodeproj/project.pbxproj
+          fi
 
       - name: Build and archive iOS app
         working-directory: ios/App
@@ -82,7 +88,7 @@ jobs:
       - name: Inject team ID into export options
         run: |
           cp ios/App/ExportOptions.plist "$RUNNER_TEMP/ExportOptions.plist"
-          sed -i '' "s/__APPLE_TEAM_ID__/${{ secrets.APPLE_TEAM_ID }}/g" "$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c "Set :teamID ${{ secrets.APPLE_TEAM_ID }}" "$RUNNER_TEMP/ExportOptions.plist"
 
       - name: Export IPA
         run: |
