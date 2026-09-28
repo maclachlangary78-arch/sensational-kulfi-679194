@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: macos-latest
@@ -32,7 +35,9 @@ jobs:
         run: |
           # Create a keychain
           security create-keychain -p "" build.keychain
+          security list-keychains -d user -s build.keychain
           security default-keychain -s build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
           security unlock-keychain -p "" build.keychain
           
           # Import certificate
@@ -45,9 +50,28 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Update bundle identifier
+      - name: Verify signing setup
         run: |
-          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = .*/PRODUCT_BUNDLE_IDENTIFIER = com.lurerater.app;/g' ios/App/App.xcodeproj/project.pbxproj
+          security find-identity -v -p codesigning build.keychain
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles"
+          while IFS= read -r profile; do
+            profile_plist="$RUNNER_TEMP/profile.plist"
+            security cms -D -i "$profile" > "$profile_plist"
+            profile_name=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$profile_plist" 2>/dev/null || echo "UNKNOWN")
+            app_identifier=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$profile_plist" 2>/dev/null || echo "UNKNOWN")
+            echo "Profile: $profile"
+            echo "  Name: $profile_name"
+            echo "  application-identifier: $app_identifier"
+          done < <(find "$HOME/Library/MobileDevice/Provisioning Profiles" -name '*.mobileprovision' -print)
+
+      - name: Set build number
+        working-directory: ios/App
+        run: |
+          if grep -q "CURRENT_PROJECT_VERSION =" App.xcodeproj/project.pbxproj; then
+            xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"
+          else
+            echo "::warning::CURRENT_PROJECT_VERSION is not configured for agvtool; using xcodebuild override for this run."
+          fi
 
       - name: Build and archive iOS app
         working-directory: ios/App
@@ -57,37 +81,82 @@ jobs:
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
+            -destination "generic/platform=iOS" \
             -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
             -allowProvisioningUpdates \
-            -authorizationProvisioning \
             archive \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="LureRater Distribution"
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}"
+
+      - name: Inject team ID into export options
+        run: |
+          cp ios/App/ExportOptions.plist "$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c "Set :teamID ${{ secrets.APPLE_TEAM_ID }}" "$RUNNER_TEMP/ExportOptions.plist"
 
       - name: Export IPA
         run: |
           xcodebuild \
             -exportArchive \
             -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
-            -exportOptionsPlist ios/App/ExportOptions.plist \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
             -exportPath "$RUNNER_TEMP/export" \
             -allowProvisioningUpdates
 
-      - name: Upload to App Store Connect
+      - name: Set up App Store Connect API key
+        env:
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          key_path="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
+          raw_key="$APP_STORE_CONNECT_PRIVATE_KEY"
+          if printf '%s' "$raw_key" | grep -q 'BEGIN PRIVATE KEY'; then
+            if printf '%s' "$raw_key" | grep -q '\\n'; then
+              printf '%b' "$raw_key" > "$key_path"
+            else
+              printf '%s' "$raw_key" > "$key_path"
+            fi
+          else
+            printf '%s' "$raw_key" | base64 --decode > "$key_path"
+          fi
+          grep -q "BEGIN PRIVATE KEY" "$key_path"
+          chmod 600 "$key_path"
+
+      - name: Upload IPA to App Store Connect
+        shell: bash
+        run: |
+          mapfile -t IPA_FILES < <(find "$RUNNER_TEMP/export" -maxdepth 1 -type f -name '*.ipa' -print)
+          if [ "${#IPA_FILES[@]}" -eq 0 ]; then
+            echo "No IPA found in $RUNNER_TEMP/export"
+            find "$RUNNER_TEMP/export" -maxdepth 2 -type f || true
+            echo "Distribution logs (if any):"
+            find "$RUNNER_TEMP" -maxdepth 3 -name '*.xcdistributionlogs' -print || true
+            exit 1
+          fi
+          if [ "${#IPA_FILES[@]}" -gt 1 ]; then
+            echo "Expected exactly one IPA in $RUNNER_TEMP/export, found ${#IPA_FILES[@]}"
+            printf '%s\n' "${IPA_FILES[@]}"
+            exit 1
+          fi
+          IPA_PATH="${IPA_FILES[0]}"
+
+          echo "Uploading IPA: $IPA_PATH"
           xcrun altool \
             --upload-app \
-            --file "$RUNNER_TEMP/export/LureRater.ipa" \
             --type ios \
-            --apiKey "${{ secrets.APPLE_ID }}" \
-            --apiIssuer "${{ secrets.TEAM_ID }}" \
-            --password "${{ secrets.APPLE_ID_PASSWORD }}"
+            --file "$IPA_PATH" \
+            --apiKey "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
+
+      - name: Restore Xcode project versioning changes
+        if: always()
+        run: |
+          git checkout -- ios/App/App.xcodeproj/project.pbxproj || true
 
       - name: Clean up
         if: always()
         run: |
           security delete-keychain build.keychain || true
-          rm -f certificate.p12 profile.mobileprovision
+          rm -f certificate.p12 profile.mobileprovision "$RUNNER_TEMP/ExportOptions.plist" "$RUNNER_TEMP/profile.plist"
+          rm -f "$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
 
       - name: Save build artifacts
         if: always()
@@ -95,5 +164,5 @@ jobs:
         with:
           name: ios-build-artifacts
           path: |
-            $RUNNER_TEMP/LureRater.xcarchive
-            $RUNNER_TEMP/export/
+            ${{ runner.temp }}/LureRater.xcarchive
+            ${{ runner.temp }}/export/
