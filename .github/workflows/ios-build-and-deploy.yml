@@ -113,6 +113,8 @@ jobs:
           if [ -z "$IPA_PATH" ]; then
             echo "No IPA found in $RUNNER_TEMP/export"
             find "$RUNNER_TEMP/export" -maxdepth 2 -type f || true
+            echo "Distribution logs (if any):"
+            find "$RUNNER_TEMP" -maxdepth 3 -name '*.xcdistributionlogs' -print || true
             exit 1
           fi
 
