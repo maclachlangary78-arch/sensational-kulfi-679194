@@ -1,0 +1,99 @@
+name: iOS Build and Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Sync Capacitor iOS project
+        run: npx cap sync ios
+
+      - name: Set up code signing
+        run: |
+          # Create a keychain
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          
+          # Import certificate
+          echo "${{ secrets.CERTIFICATE_DATA }}" | base64 --decode > certificate.p12
+          security import certificate.p12 -k build.keychain -P "${{ secrets.CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          
+          # Import provisioning profile
+          echo "${{ secrets.PROVISIONING_PROFILE_DATA }}" | base64 --decode > profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Update bundle identifier
+        run: |
+          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = .*/PRODUCT_BUNDLE_IDENTIFIER = com.lurerater.app;/g' ios/App/App.xcodeproj/project.pbxproj
+
+      - name: Build and archive iOS app
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
+            -allowProvisioningUpdates \
+            -authorizationProvisioning \
+            archive \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="LureRater Distribution"
+
+      - name: Export IPA
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
+            -exportOptionsPlist ios/App/ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates
+
+      - name: Upload to App Store Connect
+        run: |
+          xcrun altool \
+            --upload-app \
+            --file "$RUNNER_TEMP/export/LureRater.ipa" \
+            --type ios \
+            --apiKey "${{ secrets.APPLE_ID }}" \
+            --apiIssuer "${{ secrets.TEAM_ID }}" \
+            --password "${{ secrets.APPLE_ID_PASSWORD }}"
+
+      - name: Clean up
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
+          rm -f certificate.p12 profile.mobileprovision
+
+      - name: Save build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-artifacts
+          path: |
+            $RUNNER_TEMP/LureRater.xcarchive
+            $RUNNER_TEMP/export/
