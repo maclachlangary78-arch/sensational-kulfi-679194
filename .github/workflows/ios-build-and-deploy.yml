@@ -120,14 +120,20 @@ jobs:
 
       - name: Upload IPA to App Store Connect
         run: |
-          IPA_PATH="$(find "$RUNNER_TEMP/export" -name '*.ipa' -print -quit)"
-          if [ -z "$IPA_PATH" ]; then
+          mapfile -t IPA_FILES < <(find "$RUNNER_TEMP/export" -maxdepth 1 -type f -name '*.ipa' -print)
+          if [ "${#IPA_FILES[@]}" -eq 0 ]; then
             echo "No IPA found in $RUNNER_TEMP/export"
             find "$RUNNER_TEMP/export" -maxdepth 2 -type f || true
             echo "Distribution logs (if any):"
             find "$RUNNER_TEMP" -maxdepth 3 -name '*.xcdistributionlogs' -print || true
             exit 1
           fi
+          if [ "${#IPA_FILES[@]}" -gt 1 ]; then
+            echo "Expected exactly one IPA in $RUNNER_TEMP/export, found ${#IPA_FILES[@]}"
+            printf '%s\n' "${IPA_FILES[@]}"
+            exit 1
+          fi
+          IPA_PATH="${IPA_FILES[0]}"
 
           echo "Uploading IPA: $IPA_PATH"
           xcrun altool \
