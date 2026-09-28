@@ -11,7 +11,7 @@
     <key>stripSwiftSymbols</key>
     <true/>
     <key>teamID</key>
-    <string>YOUR_TEAM_ID</string>
+    <string>__APPLE_TEAM_ID__</string>
     <key>stripBitcode</key>
     <false/>
     <key>uploadSymbols</key>

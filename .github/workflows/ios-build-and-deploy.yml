@@ -32,7 +32,9 @@ jobs:
         run: |
           # Create a keychain
           security create-keychain -p "" build.keychain
+          security list-keychains -d user -s build.keychain
           security default-keychain -s build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
           security unlock-keychain -p "" build.keychain
           
           # Import certificate
@@ -45,9 +47,24 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Update bundle identifier
+      - name: Verify signing setup
         run: |
-          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = .*/PRODUCT_BUNDLE_IDENTIFIER = com.lurerater.app;/g' ios/App/App.xcodeproj/project.pbxproj
+          security find-identity -v -p codesigning build.keychain
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles"
+          while IFS= read -r profile; do
+            profile_plist="$RUNNER_TEMP/profile.plist"
+            security cms -D -i "$profile" > "$profile_plist"
+            profile_name=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$profile_plist" 2>/dev/null || echo "UNKNOWN")
+            app_identifier=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$profile_plist" 2>/dev/null || echo "UNKNOWN")
+            echo "Profile: $profile"
+            echo "  Name: $profile_name"
+            echo "  application-identifier: $app_identifier"
+          done < <(find "$HOME/Library/MobileDevice/Provisioning Profiles" -name '*.mobileprovision' -print)
+
+      - name: Set build number
+        working-directory: ios/App
+        run: |
+          xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"
 
       - name: Build and archive iOS app
         working-directory: ios/App
@@ -57,37 +74,53 @@ jobs:
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
+            -destination "generic/platform=iOS" \
             -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
             -allowProvisioningUpdates \
-            -authorizationProvisioning \
-            archive \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="LureRater Distribution"
+            archive
+
+      - name: Inject team ID into export options
+        run: |
+          cp ios/App/ExportOptions.plist "$RUNNER_TEMP/ExportOptions.plist"
+          sed -i '' "s/__APPLE_TEAM_ID__/${{ secrets.APPLE_TEAM_ID }}/g" "$RUNNER_TEMP/ExportOptions.plist"
 
       - name: Export IPA
         run: |
           xcodebuild \
             -exportArchive \
             -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
-            -exportOptionsPlist ios/App/ExportOptions.plist \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
             -exportPath "$RUNNER_TEMP/export" \
             -allowProvisioningUpdates
 
-      - name: Upload to App Store Connect
+      - name: Set up App Store Connect API key
         run: |
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > "$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
+
+      - name: Upload IPA to App Store Connect
+        run: |
+          IPA_PATH="$(find "$RUNNER_TEMP/export" -name '*.ipa' -print -quit)"
+          if [ -z "$IPA_PATH" ]; then
+            echo "No IPA found in $RUNNER_TEMP/export"
+            find "$RUNNER_TEMP/export" -maxdepth 2 -type f || true
+            exit 1
+          fi
+
+          echo "Uploading IPA: $IPA_PATH"
           xcrun altool \
             --upload-app \
-            --file "$RUNNER_TEMP/export/LureRater.ipa" \
             --type ios \
-            --apiKey "${{ secrets.APPLE_ID }}" \
-            --apiIssuer "${{ secrets.TEAM_ID }}" \
-            --password "${{ secrets.APPLE_ID_PASSWORD }}"
+            --file "$IPA_PATH" \
+            --apiKey "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
 
       - name: Clean up
         if: always()
         run: |
           security delete-keychain build.keychain || true
-          rm -f certificate.p12 profile.mobileprovision
+          rm -f certificate.p12 profile.mobileprovision "$RUNNER_TEMP/ExportOptions.plist" "$RUNNER_TEMP/profile.plist"
+          rm -f "$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
 
       - name: Save build artifacts
         if: always()
@@ -95,5 +128,5 @@ jobs:
         with:
           name: ios-build-artifacts
           path: |
-            $RUNNER_TEMP/LureRater.xcarchive
-            $RUNNER_TEMP/export/
+            ${{ runner.temp }}/LureRater.xcarchive
+            ${{ runner.temp }}/export/
