@@ -102,10 +102,12 @@ jobs:
             -allowProvisioningUpdates
 
       - name: Set up App Store Connect API key
+        env:
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
           mkdir -p "$HOME/.appstoreconnect/private_keys"
           key_path="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
-          raw_key='${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}'
+          raw_key="$APP_STORE_CONNECT_PRIVATE_KEY"
           if printf '%s' "$raw_key" | grep -q 'BEGIN PRIVATE KEY'; then
             if printf '%s' "$raw_key" | grep -q '\\n'; then
               printf '%b' "$raw_key" > "$key_path"
@@ -143,6 +145,11 @@ jobs:
             --file "$IPA_PATH" \
             --apiKey "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
+
+      - name: Restore Xcode project versioning changes
+        if: always()
+        run: |
+          git checkout -- ios/App/App.xcodeproj/project.pbxproj || true
 
       - name: Clean up
         if: always()
