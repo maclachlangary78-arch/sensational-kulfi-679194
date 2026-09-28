@@ -102,7 +102,13 @@ jobs:
       - name: Set up App Store Connect API key
         run: |
           mkdir -p "$HOME/.appstoreconnect/private_keys"
-          printf '%s' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > "$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
+          key_path="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
+          if printf '%s' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" | grep -q '\\n'; then
+            printf '%b' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > "$key_path"
+          else
+            printf '%s' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > "$key_path"
+          fi
+          chmod 600 "$key_path"
 
       - name: Upload IPA to App Store Connect
         run: |
