@@ -68,6 +68,9 @@ Required repository secrets:
 - `APP_STORE_CONNECT_PRIVATE_KEY`
 - `APPLE_TEAM_ID`
 
+`CERTIFICATE_DATA` and `PROVISIONING_PROFILE_DATA` must be base64-encoded values of the `.p12` certificate and
+`.mobileprovision` profile files.
+
 The native apps call the API on the deployed Netlify site. The URL is set in `src/lib/api.js`; override it with
 `VITE_API_BASE_URL` at build time if you connect a custom domain.
 

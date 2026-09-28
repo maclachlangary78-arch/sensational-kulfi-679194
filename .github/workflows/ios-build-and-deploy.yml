@@ -67,10 +67,7 @@ jobs:
       - name: Set build number
         working-directory: ios/App
         run: |
-          if ! xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"; then
-            echo "::warning::agvtool failed, falling back to direct CURRENT_PROJECT_VERSION update."
-            sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = ${GITHUB_RUN_NUMBER};/g" App.xcodeproj/project.pbxproj
-          fi
+          xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"
 
       - name: Build and archive iOS app
         working-directory: ios/App
