@@ -67,7 +67,11 @@ jobs:
       - name: Set build number
         working-directory: ios/App
         run: |
-          xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"
+          if grep -q "CURRENT_PROJECT_VERSION =" App.xcodeproj/project.pbxproj; then
+            xcrun agvtool new-version -all "${GITHUB_RUN_NUMBER}"
+          else
+            echo "::warning::CURRENT_PROJECT_VERSION is not configured for agvtool; using xcodebuild override for this run."
+          fi
 
       - name: Build and archive iOS app
         working-directory: ios/App
@@ -80,7 +84,8 @@ jobs:
             -destination "generic/platform=iOS" \
             -archivePath "$RUNNER_TEMP/LureRater.xcarchive" \
             -allowProvisioningUpdates \
-            archive
+            archive \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}"
 
       - name: Inject team ID into export options
         run: |
@@ -100,11 +105,17 @@ jobs:
         run: |
           mkdir -p "$HOME/.appstoreconnect/private_keys"
           key_path="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
-          if printf '%s' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" | grep -q '\\n'; then
-            printf '%b' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > "$key_path"
+          raw_key='${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}'
+          if printf '%s' "$raw_key" | grep -q 'BEGIN PRIVATE KEY'; then
+            if printf '%s' "$raw_key" | grep -q '\\n'; then
+              printf '%b' "$raw_key" > "$key_path"
+            else
+              printf '%s' "$raw_key" > "$key_path"
+            fi
           else
-            printf '%s' "${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}" > "$key_path"
+            printf '%s' "$raw_key" | base64 --decode > "$key_path"
           fi
+          grep -q "BEGIN PRIVATE KEY" "$key_path"
           chmod 600 "$key_path"
 
       - name: Upload IPA to App Store Connect

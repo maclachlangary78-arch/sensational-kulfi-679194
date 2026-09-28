@@ -70,6 +70,7 @@ Required repository secrets:
 
 `CERTIFICATE_DATA` and `PROVISIONING_PROFILE_DATA` must be base64-encoded values of the `.p12` certificate and
 `.mobileprovision` profile files.
+`APP_STORE_CONNECT_PRIVATE_KEY` can be stored as plain PEM text (multiline or escaped `\n`) or as base64-encoded PEM.
 
 The native apps call the API on the deployed Netlify site. The URL is set in `src/lib/api.js`; override it with
 `VITE_API_BASE_URL` at build time if you connect a custom domain.
