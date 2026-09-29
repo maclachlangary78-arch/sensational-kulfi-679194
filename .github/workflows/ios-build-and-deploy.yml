@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   build-and-deploy:
+    if: ${{ secrets.CERTIFICATE_DATA != '' && secrets.CERTIFICATE_PASSWORD != '' && secrets.PROVISIONING_PROFILE_DATA != '' && secrets.APP_STORE_CONNECT_KEY_ID != '' && secrets.APP_STORE_CONNECT_ISSUER_ID != '' && secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' && secrets.APPLE_TEAM_ID != '' }}
     runs-on: macos-latest
     
     steps:
