@@ -31,28 +31,30 @@ netlify dev
 You need a Mac with Xcode for iOS, Android Studio for Android, an Apple Developer account ($99/yr) and a Google
 Play Console account ($25 one-off). These steps can't be done on an iPhone alone.
 
-1. **Build the web app and add the native projects (one time):**
+1. **Prepare the existing iOS project on your Mac:**
    ```bash
-   npm install
-   npm run build
-   npx cap add ios
-   npx cap add android
+   git clone <your-repository-url>
+   cd sensational-kulfi-679194
+   npm ci
+   npm run cap:ios
    ```
-2. **Generate app icons and splash screens** from `assets/icon-only.png` (1024×1024):
-   ```bash
-   npx @capacitor/assets generate --iconBackgroundColor '#020617' --splashBackgroundColor '#020617'
-   ```
-3. **Add permission messages.** In `ios/App/App/Info.plist` add:
-   - `NSLocationWhenInUseUsageDescription` — "LureRater records where each strike happens and looks up sea temperature."
-   - `NSCameraUsageDescription` — "LureRater lets you photograph your lure or catch."
-   - `NSPhotoLibraryUsageDescription` — "LureRater lets you attach photos of your lure or catch."
+   
+   Install Node.js 22 and Git on the Mac first. `npm run cap:ios` builds the web app, syncs Capacitor, and opens the
+   checked-in iOS project in Xcode. Do not run `npx cap add ios`; the native iOS project is already included.
+2. **Run and test in Xcode.** Select the `App` scheme and an iPhone simulator, then click **Run**. On a physical
+   iPhone, connect and trust the device, then allow location and photo access when prompted. Permission descriptions
+   and the app icon are already configured in the iOS project.
+3. **Configure signing.** Select the `App` target → **Signing & Capabilities** → enable **Automatically manage
+   signing** and choose your Apple Developer team. The current bundle ID is `com.lurerater.app`; it must be unique
+   and registered to your team for App Store distribution. If you change it, update `appId` in
+   `capacitor.config.json`, run `npm run cap:sync`, and confirm the resulting bundle ID in Xcode.
+4. **Archive and upload.** Select **Any iOS Device (arm64)** as the destination, then choose **Product ▸ Archive**.
+   In Organizer, validate the archive and distribute it to App Store Connect. You need an Apple Developer account
+   and App Store Connect access. Complete the app's privacy details and provide a publicly accessible privacy policy
+   URL before submitting for review.
 
-   In `android/app/src/main/AndroidManifest.xml` add `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` and
-   `CAMERA` permissions.
-4. **Sync after every code change:** `npm run cap:sync`
-5. **Open, sign and upload:**
-   - iOS: `npx cap open ios` → set your Team under *Signing & Capabilities* → *Product ▸ Archive* → upload to App Store Connect.
-   - Android: `npx cap open android` → *Build ▸ Generate Signed App Bundle* → upload the `.aab` to Play Console.
+After web app changes, run `npm run cap:ios` again to rebuild and sync the iOS app. If you later set up Android,
+generate its native project with `npx cap add android` on a machine with the Android development tools installed.
 
 ### GitHub Actions iOS upload
 
