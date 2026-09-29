@@ -33,7 +33,7 @@ Play Console account ($25 one-off). These steps can't be done on an iPhone alone
 
 1. **Prepare the existing iOS project on your Mac:**
    ```bash
-   git clone <your-repository-url>
+   git clone https://github.com/maclachlangary78-arch/sensational-kulfi-679194.git
    cd sensational-kulfi-679194
    npm ci
    npm run cap:ios
