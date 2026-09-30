@@ -26,6 +26,23 @@ netlify dev
 
 `netlify dev` runs Vite plus the functions, database and blobs emulation. Open the URL it prints.
 
+## Test in Xcode
+
+On a Mac with Xcode installed, run this from the repository root:
+
+```bash
+npm install
+npm run cap:ios
+```
+
+This builds the web app, syncs it into the Capacitor iOS project, and opens the project in Xcode. Select the **App**
+scheme and an iOS Simulator, then click **Run**. A development team is not needed to run in the simulator; select your
+team under **Signing & Capabilities** to install on a physical iPhone.
+
+The native app uses the deployed Netlify API by default, so simulator tests need an internet connection and use the
+deployed service. To point the build at another API, set `VITE_API_BASE_URL` before running the command, for example:
+`VITE_API_BASE_URL=https://your-test-api.example npm run cap:ios`.
+
 ## Publishing to the App Store and Google Play
 
 You need a Mac with Xcode for iOS, Android Studio for Android, an Apple Developer account ($99/yr) and a Google
