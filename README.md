@@ -21,10 +21,11 @@ iOS app (App Store) and Android app (Google Play) from the same code.
 
 ```bash
 npm install
-netlify dev
+npx netlify-cli dev
 ```
 
-`netlify dev` runs Vite plus the functions, database and blobs emulation. Open the URL it prints.
+`npx netlify-cli dev` runs Vite plus the functions, database and blobs emulation without requiring a globally installed
+Netlify CLI. Open the URL it prints.
 
 ## Test in Xcode
 
