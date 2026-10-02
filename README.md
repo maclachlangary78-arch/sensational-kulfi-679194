@@ -94,4 +94,5 @@ The native apps call the API on the deployed Netlify site. The URL is set in `sr
 `VITE_API_BASE_URL` at build time if you connect a custom domain.
 
 Both stores require a privacy policy URL — LureRater stores your GPS position, conditions and photos against an
-anonymous device ID.
+anonymous device ID. Use https://sensational-kulfi-679194.netlify.app/privacy (source: `public/privacy.html`; also
+linked from the app's Settings sheet).

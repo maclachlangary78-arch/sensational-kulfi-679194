@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { BOAT_TYPES } from '../lib/constants';
+import { API_BASE } from '../lib/api';
 
 export default function SettingsSheet({ settings, setSettings, onClose }) {
   const field = 'w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500';
@@ -61,6 +62,15 @@ export default function SettingsSheet({ settings, setSettings, onClose }) {
         <p className="text-[11px] text-slate-500">
           Your lures and strikes are linked to this device and sync automatically when you have signal.
         </p>
+
+        <a
+          href={`${API_BASE}/privacy`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-xs text-cyan-400 underline"
+        >
+          Privacy Policy
+        </a>
       </div>
     </div>
   );
