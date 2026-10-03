@@ -77,7 +77,7 @@ Use the **`iOS Build and Deploy`** workflow in the repository Actions tab for Ap
 
 Required repository secrets:
 
-- `CERTIFICATE_DATA`
+- `DISTRIBUTIONCERTIFICATE`
 - `CERTIFICATE_PASSWORD`
 - `PROVISIONING_PROFILE_DATA`
 - `APP_STORE_CONNECT_KEY_ID`
@@ -85,7 +85,7 @@ Required repository secrets:
 - `APP_STORE_CONNECT_PRIVATE_KEY`
 - `APPLE_TEAM_ID`
 
-`CERTIFICATE_DATA` and `PROVISIONING_PROFILE_DATA` must be base64-encoded values of the `.p12` certificate and
+`DISTRIBUTIONCERTIFICATE` and `PROVISIONING_PROFILE_DATA` must be base64-encoded values of the `.p12` certificate and
 `.mobileprovision` profile files.
 `APP_STORE_CONNECT_PRIVATE_KEY` can be stored as plain PEM text (multiline or escaped `\n`) or as base64-encoded PEM.
 `APPLE_TEAM_ID` must be your Apple Developer Team ID (for example, `ABC1234567`).
@@ -93,9 +93,9 @@ Required repository secrets:
 #### Preparing the secrets
 
 ```bash
-base64 -i certificate.p12 | pbcopy                 # CERTIFICATE_DATA (macOS; use `base64 -w0 file | xclip` on Linux)
+base64 -i certificate.p12 | pbcopy                 # DISTRIBUTIONCERTIFICATE (macOS; use `base64 -w0 file | xclip` on Linux)
 base64 -i profile.mobileprovision | pbcopy         # PROVISIONING_PROFILE_DATA
-gh secret set CERTIFICATE_DATA < <(base64 -i certificate.p12)
+gh secret set DISTRIBUTIONCERTIFICATE < <(base64 -i certificate.p12)
 gh secret set PROVISIONING_PROFILE_DATA < <(base64 -i profile.mobileprovision)
 gh secret set CERTIFICATE_PASSWORD --body 'your-p12-password'
 gh secret set APPLE_TEAM_ID --body 'ABC1234567'
