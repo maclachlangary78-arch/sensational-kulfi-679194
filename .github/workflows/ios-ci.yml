@@ -109,8 +109,11 @@ jobs:
             archive \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Package iOS archive
+        run: tar -czf "$RUNNER_TEMP/App.xcarchive.tar.gz" -C "$RUNNER_TEMP" App.xcarchive
+
       - name: Upload iOS archive artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-archive
-          path: ${{ runner.temp }}/App.xcarchive
+          path: ${{ runner.temp }}/App.xcarchive.tar.gz
