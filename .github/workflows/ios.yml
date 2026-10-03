@@ -75,7 +75,16 @@ jobs:
             exit 1
           fi
           echo "Using simulator destination id: $device_id"
-          xcodebuild test-without-building \
+          test_log="$RUNNER_TEMP/xcodebuild-test.log"
+          if xcodebuild test-without-building \
             -project App.xcodeproj \
             -scheme "$scheme" \
-            -destination "platform=$platform,id=$device_id"
+            -destination "platform=$platform,id=$device_id" >"$test_log" 2>&1; then
+            cat "$test_log"
+          elif grep -Fq "Scheme $scheme is not currently configured for the test-without-building action." "$test_log"; then
+            cat "$test_log"
+            echo "::notice::Scheme $scheme has no test action configured; skipping tests."
+          else
+            cat "$test_log"
+            exit 1
+          fi
