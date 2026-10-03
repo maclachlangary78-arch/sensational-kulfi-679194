@@ -55,7 +55,13 @@ jobs:
         run: npx cap sync ios
 
       - name: Set up code signing
+        env:
+          CERTIFICATE_DATA: ${{ secrets.CERTIFICATE_DATA }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_DATA: ${{ secrets.PROVISIONING_PROFILE_DATA }}
         run: |
+          set -euo pipefail
+
           # Create a keychain
           security create-keychain -p "" build.keychain
           security list-keychains -d user -s build.keychain
@@ -64,12 +70,18 @@ jobs:
           security unlock-keychain -p "" build.keychain
           
           # Import certificate
-          echo "${{ secrets.CERTIFICATE_DATA }}" | base64 --decode > certificate.p12
-          security import certificate.p12 -k build.keychain -P "${{ secrets.CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          if ! printf '%s' "$CERTIFICATE_DATA" | tr -d '[:space:]' | base64 --decode > certificate.p12; then
+            echo "::error::CERTIFICATE_DATA must contain valid base64-encoded certificate data."
+            exit 1
+          fi
+          security import certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
           
           # Import provisioning profile
-          echo "${{ secrets.PROVISIONING_PROFILE_DATA }}" | base64 --decode > profile.mobileprovision
+          if ! printf '%s' "$PROVISIONING_PROFILE_DATA" | tr -d '[:space:]' | base64 --decode > profile.mobileprovision; then
+            echo "::error::PROVISIONING_PROFILE_DATA must contain valid base64-encoded provisioning profile data."
+            exit 1
+          fi
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
