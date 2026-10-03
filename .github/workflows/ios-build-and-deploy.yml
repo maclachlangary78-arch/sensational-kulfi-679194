@@ -67,14 +67,41 @@ jobs:
           security default-keychain -s build.keychain
           security set-keychain-settings -lut 21600 build.keychain
           security unlock-keychain -p "" build.keychain
+
+          decode_base64_secret() {
+            local name="$1"
+            local value="$2"
+            local output="$3"
+            local encoded
+
+            encoded="$(printf '%s' "$value" | tr -d '[:space:]')"
+            case $((${#encoded} % 4)) in
+              1)
+                echo "::error::$name is not valid base64."
+                return 1
+                ;;
+              2) encoded="${encoded}==" ;;
+              3) encoded="${encoded}=" ;;
+            esac
+
+            if ! printf '%s' "$encoded" | base64 --decode > "$output" 2>/dev/null; then
+              rm -f "$output"
+              echo "::error::$name must contain base64-encoded file contents."
+              return 1
+            fi
+            if [ ! -s "$output" ]; then
+              echo "::error::$name decoded to an empty file."
+              return 1
+            fi
+          }
           
           # Import certificate
-          printf '%s' "$CERTIFICATE_DATA" | tr -d '[:space:]' | base64 --decode > certificate.p12
+          decode_base64_secret CERTIFICATE_DATA "$CERTIFICATE_DATA" certificate.p12
           security import certificate.p12 -k build.keychain -P "${{ secrets.CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
           
           # Import provisioning profile
-          printf '%s' "$PROVISIONING_PROFILE_DATA" | tr -d '[:space:]' | base64 --decode > profile.mobileprovision
+          decode_base64_secret PROVISIONING_PROFILE_DATA "$PROVISIONING_PROFILE_DATA" profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
