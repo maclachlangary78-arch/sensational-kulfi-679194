@@ -90,6 +90,37 @@ Required repository secrets:
 `APP_STORE_CONNECT_PRIVATE_KEY` can be stored as plain PEM text (multiline or escaped `\n`) or as base64-encoded PEM.
 `APPLE_TEAM_ID` must be your Apple Developer Team ID (for example, `ABC1234567`).
 
+#### Preparing the secrets
+
+```bash
+base64 -i certificate.p12 | pbcopy                 # CERTIFICATE_DATA (macOS; use `base64 -w0 file | xclip` on Linux)
+base64 -i profile.mobileprovision | pbcopy         # PROVISIONING_PROFILE_DATA
+gh secret set CERTIFICATE_DATA < <(base64 -i certificate.p12)
+gh secret set PROVISIONING_PROFILE_DATA < <(base64 -i profile.mobileprovision)
+gh secret set CERTIFICATE_PASSWORD --body 'your-p12-password'
+gh secret set APPLE_TEAM_ID --body 'ABC1234567'
+gh secret set APP_STORE_CONNECT_KEY_ID --body 'XXXXXXXXXX'
+gh secret set APP_STORE_CONNECT_ISSUER_ID --body '00000000-0000-0000-0000-000000000000'
+gh secret set APP_STORE_CONNECT_PRIVATE_KEY < AuthKey_XXXXXXXXXX.p8   # or: base64 -i AuthKey_XXXXXXXXXX.p8
+gh variable set VITE_API_BASE_URL --body 'https://your-domain.example'   # optional
+```
+
+The `.p12` must be exported from Keychain Access **with its private key**. The profile must be an *App Store*
+distribution profile for the app's bundle ID and your team.
+
+Workflows: **`iOS Build and Deploy`** (`ios-build-and-deploy.yml`, run from the Actions tab or on push to `main`)
+signs, archives, exports and uploads to App Store Connect. **`iOS CI`** (`ios-ci.yml`) builds and tests on a simulator
+for pushes and pull requests. On failure, download the `ios-build-artifacts` artifact for `archive.log` / `export.log`.
+
+Troubleshooting:
+
+- `Missing required repository secrets: …` — the named secret is empty or not set in *Settings ▸ Secrets ▸ Actions*.
+- `… must contain base64-encoded file contents` — you stored the raw file or a file path instead of base64.
+- `Certificate import failed` — wrong `CERTIFICATE_PASSWORD`, or the `.p12` lacks the private key.
+- `No valid code signing identities` — the certificate is expired/revoked or is not a Distribution certificate.
+- `APP_STORE_CONNECT_PRIVATE_KEY did not produce a valid PEM` — store the `.p8` text (multiline or `\n`-escaped) or its base64.
+- Export fails with a team/profile error — check `APPLE_TEAM_ID` matches the profile's Team in the "Verify signing setup" log.
+
 The native apps call the API on the deployed Netlify site. The URL is set in `src/lib/api.js`; override it with
 `VITE_API_BASE_URL` at build time if you connect a custom domain.
 
