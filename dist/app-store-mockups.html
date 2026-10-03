@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LureRater App Store Mockups</title>
+    <style>
+      :root {
+        --bg: #020817;
+        --panel: #0f172a;
+        --panel-2: #111827;
+        --line: #1e293b;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --cyan: #22d3ee;
+        --cyan-2: #0ea5e9;
+        --green: #34d399;
+        --red: #f87171;
+        --amber: #fbbf24;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #020817 0%, #111827 100%);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        text-align: center;
+        font-size: clamp(30px, 5vw, 54px);
+        letter-spacing: -0.06em;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: var(--muted);
+        margin: 0 0 32px;
+        font-size: 16px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 26px;
+      }
+
+      .phone {
+        width: 100%;
+        max-width: 390px;
+        margin: 0 auto;
+        background: #020617;
+        border-radius: 30px;
+        padding: 14px 12px 12px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      }
+
+      .screen {
+        background: #020817;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        min-height: 844px;
+        position: relative;
+      }
+
+      .header {
+        background: rgba(2, 6, 23, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+        padding: 16px 14px 12px;
+      }
+
+      .brand-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--cyan), var(--cyan-2));
+        position: relative;
+        box-shadow: 0 0 25px rgba(34, 211, 238, 0.35);
+      }
+
+      .icon:before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        border: 3px solid rgba(2, 6, 23, 0.9);
+      }
+
+      .brand h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .brand small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 1px;
+      }
+
+      .unit-btn {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: rgba(15, 23, 42, 1);
+        color: var(--cyan);
+        font-weight: 700;
+        font-size: 10px;
+      }
+
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        font-size: 10px;
+        color: #cbd5e1;
+        gap: 8px;
+      }
+
+      .status-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--amber);
+        display: inline-block;
+      }
+
+      .sync {
+        color: var(--cyan);
+        font-weight: 700;
+      }
+
+      .main {
+        padding: 16px 14px 24px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--cyan);
+        font-weight: 700;
+        margin: 0 0 12px;
+      }
+
+      .tab-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #0f172a;
+        border: 1px solid var(--line);
+        padding: 4px;
+        border-radius: 14px;
+        gap: 4px;
+        margin-bottom: 14px;
+      }
+
+      .tab {
+        border-radius: 10px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #cbd5e1;
+      }
+
+      .tab.active {
+        background: var(--cyan);
+        color: #020617;
+      }
+
+      .conditions {
+        background: rgba(2, 6, 23, 0.8);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px 12px 10px;
+      }
+
+      .conditions-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .conditions small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .conditions strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+        color: #e2e8f0;
+        font-family: "SFMono-Regular", Consolas, monospace;
+      }
+
+      .pill {
+        background: rgba(34, 211, 238, 0.08);
+        border: 1px solid rgba(34, 211, 238, 0.26);
+        color: var(--cyan);
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 5px 8px;
+      }
+
+      .field-box {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px 10px;
+        margin-top: 10px;
+      }
+
+      .field-label {
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      .line-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .line-meta {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 2px;
+      }
+
+      .lure-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .lure-button {
+        border: 1px solid var(--line);
+        background: rgba(15, 23, 42, 0.9);
+        color: #e2e8f0;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 10px 12px;
+      }
+
+      .button-primary {
+        width: 100%;
+        margin-top: 14px;
+        border: none;
+        border-radius: 12px;
+        height: 42px;
+        font-weight: 800;
+        font-size: 12px;
+        background: linear-gradient(90deg, var(--cyan), var(--cyan-2));
+        color: #020617;
+      }
+
+      .photo-box {
+        margin-top: 12px;
+        border: 2px dashed rgba(148, 163, 184, 0.45);
+        border-radius: 12px;
+        padding: 18px 12px;
+        text-align: center;
+        color: #cbd5e1;
+        font-size: 11px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .choice {
+        border-radius: 12px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .choice.green {
+        background: rgba(52, 211, 153, 0.9);
+        color: #022c22;
+      }
+
+      .choice.red {
+        background: rgba(248, 113, 113, 0.9);
+        color: #450a0a;
+      }
+
+      .card {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+        margin-top: 12px;
+      }
+
+      .list-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .list-item:last-child {
+        border-bottom: none;
+      }
+
+      .thumb {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      }
+
+      .list-item h3 {
+        margin: 0;
+        font-size: 12px;
+      }
+
+      .list-item p {
+        margin: 3px 0 0;
+        font-size: 10px;
+        color: var(--muted);
+      }
+
+      .rank-score {
+        margin-left: auto;
+        text-align: right;
+      }
+
+      .rank-score .big {
+        color: var(--green);
+        font-weight: 800;
+        font-size: 12px;
+      }
+
+      .rank-score .small {
+        color: #cbd5e1;
+        font-size: 9px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 9px;
+        font-weight: 800;
+        color: #d1fae5;
+        background: rgba(16, 185, 129, 0.18);
+        border: 1px solid rgba(16, 185, 129, 0.34);
+      }
+
+      .badge.red {
+        color: #fee2e2;
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.35);
+      }
+
+      .premium-box {
+        padding: 16px 14px 18px;
+      }
+
+      .premium-box h3 {
+        margin: 0 0 8px;
+        font-size: 24px;
+      }
+
+      .premium-box p {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0 0 14px;
+      }
+
+      .pricing {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 12px 0 14px;
+      }
+
+      .price-card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 10px;
+      }
+
+      .price-card strong {
+        display: block;
+        font-size: 20px;
+        margin-top: 4px;
+      }
+
+      .price-card span {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .tiny-btn {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: rgba(15, 23, 42, 0.88);
+        color: var(--text);
+        border-radius: 12px;
+        height: 38px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .tiny-btn.primary {
+        background: linear-gradient(90deg, var(--cyan), var(--cyan-2));
+        color: #020617;
+        border: none;
+      }
+
+      .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .switch {
+        width: 42px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(34, 211, 238, 0.25);
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        position: relative;
+      }
+
+      .switch::after {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        top: 2px;
+        right: 2px;
+        background: var(--cyan);
+      }
+
+      .footer-nav {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 3px;
+        border-top: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.96);
+        padding: 8px 8px 10px;
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        height: 52px;
+        border-radius: 10px;
+        color: #7dd3fc;
+        font-size: 9px;
+      }
+
+      .nav-item.active {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--cyan);
+      }
+
+      .nav-icon {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        background: rgba(34, 211, 238, 0.18);
+        border: 1px solid rgba(34, 211, 238, 0.28);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>LureRater</h1>
+      <p class="subtitle">App Store mockup set for launch and review</p>
+
+      <div class="grid">
+        <div class="phone">
+          <div class="screen">
+            <div class="header">
+              <div class="brand-row">
+                <div class="brand">
+                  <div class="icon"></div>
+                  <div>
+                    <h2>LureRater</h2>
+                    <small>Offshore lure log</small>
+                  </div>
+                </div>
+                <button class="unit-btn">°C · m</button>
+              </div>
+              <div class="status-bar">
+                <div class="status-left"><span class="dot"></span> Offline — 2 strikes queued</div>
+                <div class="sync">Sync GPS</div>
+              </div>
+            </div>
+
+            <div class="main">
+              <div class="section-head">Record Strike</div>
+              <div class="tab-row">
+                <div class="tab active">My Spread</div>
+                <div class="tab">Quick Log</div>
+              </div>
+
+              <div class="conditions">
+                <div class="conditions-top">
+                  <div>
+                    <small>Conditions</small>
+                    <strong>20°C · 35m · Ebbing · Today</strong>
+                  </div>
+                  <div class="pill">Edit</div>
+                </div>
+                <div class="field-box">
+                  <div class="field-label">Lure on the Short Rigger</div>
+                  <div class="line-name">JB Dingo</div>
+                  <div class="line-meta">10" · Mustad 7691S · 9/0</div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="choice green">Landed</div>
+                <div class="choice red">Lost</div>
+              </div>
+
+              <div class="photo-box">Snap or choose a photo (optional)</div>
+              <button class="button-primary">Log Strike</button>
+            </div>
+
+            <div class="footer-nav">
+              <div class="nav-item active"><div class="nav-icon"></div>Log</div>
+              <div class="nav-item"><div class="nav-icon"></div>My Lures</div>
+              <div class="nav-item"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-item"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone">
+          <div class="screen">
+            <div class="header">
+              <div class="brand-row">
+                <div class="brand">
+                  <div class="icon"></div>
+                  <div>
+                    <h2>LureRater</h2>
+                    <small>My Lures</small>
+                  </div>
+                </div>
+                <button class="unit-btn">⚙️</button>
+              </div>
+            </div>
+
+            <div class="main">
+              <div class="section-head">My Lures</div>
+              <div class="card">
+                <div class="list-item">
+                  <div class="thumb"></div>
+                  <div>
+                    <h3>Pakula Sprocket - Lumo</h3>
+                    <p>Long Rigger · 310mm</p>
+                  </div>
+                  <div class="rank-score">
+                    <div class="badge">64%</div>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <div class="thumb" style="background: linear-gradient(135deg, #0f766e, #22d3ee);"></div>
+                  <div>
+                    <h3>JB Dingo - Black/Purple</h3>
+                    <p>Short Rigger · 10"</p>
+                  </div>
+                  <div class="rank-score">
+                    <div class="badge">51%</div>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <div class="thumb" style="background: linear-gradient(135deg, #7c3aed, #22d3ee);"></div>
+                  <div>
+                    <h3>Bonze Rambo - Pink/White</h3>
+                    <p>Short Corner · 10"</p>
+                  </div>
+                  <div class="rank-score">
+                    <div class="badge">42%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-nav">
+              <div class="nav-item"><div class="nav-icon"></div>Log</div>
+              <div class="nav-item active"><div class="nav-icon"></div>My Lures</div>
+              <div class="nav-item"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-item"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone">
+          <div class="screen">
+            <div class="header">
+              <div class="brand-row">
+                <div class="brand">
+                  <div class="icon"></div>
+                  <div>
+                    <h2>LureRater</h2>
+                    <small>Ranks</small>
+                  </div>
+                </div>
+                <button class="unit-btn">#1</button>
+              </div>
+            </div>
+
+            <div class="main">
+              <div class="section-head">Lure Leaderboard</div>
+              <div class="card">
+                <div class="list-item">
+                  <div class="thumb"></div>
+                  <div>
+                    <h3>Pakula Sprocket - Lumo</h3>
+                    <p>Long Rigger · 310mm</p>
+                  </div>
+                  <div class="rank-score">
+                    <div class="big">64%</div>
+                    <div class="small">16 landed</div>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <div class="thumb" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);"></div>
+                  <div>
+                    <h3>JB Dingo - Black/Purple</h3>
+                    <p>Short Rigger · 10"</p>
+                  </div>
+                  <div class="rank-score">
+                    <div class="big">51%</div>
+                    <div class="small">29 landed</div>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <div class="thumb" style="background: linear-gradient(135deg, #8b5cf6, #22d3ee);"></div>
+                  <div>
+                    <h3>Bonze Rambo - Pink/White</h3>
+                    <p>Short Corner · 10"</p>
+                  </div>
+                  <div class="rank-score">
+                    <div class="big">42%</div>
+                    <div class="small">12 landed</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-nav">
+              <div class="nav-item"><div class="nav-icon"></div>Log</div>
+              <div class="nav-item"><div class="nav-icon"></div>My Lures</div>
+              <div class="nav-item active"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-item"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone">
+          <div class="screen">
+            <div class="header">
+              <div class="brand-row">
+                <div class="brand">
+                  <div class="icon"></div>
+                  <div>
+                    <h2>LureRater</h2>
+                    <small>Premium</small>
+                  </div>
+                </div>
+                <button class="unit-btn">VIP</button>
+              </div>
+            </div>
+
+            <div class="premium-box">
+              <div class="section-head" style="margin-top: 4px; margin-bottom: 10px;">Upgrade</div>
+              <h3>Premium</h3>
+              <p>Unlock advanced lure analytics, unlimited spreads, and community performance insights for serious offshore fishing.</p>
+
+              <div class="pricing">
+                <div class="price-card">
+                  <span>Monthly</span>
+                  <strong>$2</strong>
+                </div>
+                <div class="price-card">
+                  <span>Annual</span>
+                  <strong>$20</strong>
+                </div>
+              </div>
+
+              <button class="tiny-btn primary">Start Monthly</button>
+              <div style="height: 10px;"></div>
+              <button class="tiny-btn">Start Annual</button>
+              <div style="height: 16px;"></div>
+              <button class="tiny-btn">Restore Purchases</button>
+            </div>
+
+            <div class="footer-nav">
+              <div class="nav-item"><div class="nav-icon"></div>Log</div>
+              <div class="nav-item"><div class="nav-icon"></div>My Lures</div>
+              <div class="nav-item"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-item"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-item active"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone">
+          <div class="screen">
+            <div class="header">
+              <div class="brand-row">
+                <div class="brand">
+                  <div class="icon"></div>
+                  <div>
+                    <h2>LureRater</h2>
+                    <small>Settings</small>
+                  </div>
+                </div>
+                <button class="unit-btn">Done</button>
+              </div>
+            </div>
+
+            <div class="main">
+              <div class="section-head">Settings</div>
+              <div class="card">
+                <div class="field-label">Units</div>
+                <div class="toggle-row">
+                  <div class="pill">Metric</div>
+                  <div class="pill" style="background: rgba(15,23,42,0.75); color: #cbd5e1; border-color: var(--line);">Imperial</div>
+                </div>
+
+                <div style="height: 14px;"></div>
+                <div class="field-label">Boat type</div>
+                <div class="lure-button" style="text-align: left;">Express Gamefisher</div>
+
+                <div style="height: 14px;"></div>
+                <div class="field-label">Boat length (ft)</div>
+                <div class="lure-button" style="text-align: left;">38</div>
+
+                <div style="height: 16px;"></div>
+                <div class="field-label">Data sharing</div>
+                <div class="toggle-row">
+                  <div>Share anonymous lure-performance data</div>
+                  <div class="switch"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-nav">
+              <div class="nav-item"><div class="nav-icon"></div>Log</div>
+              <div class="nav-item"><div class="nav-icon"></div>My Lures</div>
+              <div class="nav-item"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-item"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-item active"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone">
+          <div class="screen">
+            <div class="header">
+              <div class="brand-row">
+                <div class="brand">
+                  <div class="icon"></div>
+                  <div>
+                    <h2>LureRater</h2>
+                    <small>Share</small>
+                  </div>
+                </div>
+                <button class="unit-btn">+ New</button>
+              </div>
+            </div>
+
+            <div class="main">
+              <div class="section-head">Community stats</div>
+              <div class="card">
+                <div class="list-item">
+                  <div class="thumb"></div>
+                  <div>
+                    <h3>Wahoo · Pakula Sprocket</h3>
+                    <p>310mm · Shotgun · 64% success</p>
+                  </div>
+                  <div class="rank-score"><span class="badge">Top 3%</span></div>
+                </div>
+                <div class="list-item">
+                  <div class="thumb" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);"></div>
+                  <div>
+                    <h3>Striped Marlin · JB Dingo</h3>
+                    <p>10" · Short Rigger · 51% success</p>
+                  </div>
+                  <div class="rank-score"><span class="badge">High</span></div>
+                </div>
+                <div class="list-item">
+                  <div class="thumb" style="background: linear-gradient(135deg, #8b5cf6, #22d3ee);"></div>
+                  <div>
+                    <h3>Yellowfin · Bonze Rambo</h3>
+                    <p>10" · Long Corner · 42% success</p>
+                  </div>
+                  <div class="rank-score"><span class="badge red">Data sparse</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-nav">
+              <div class="nav-item"><div class="nav-icon"></div>Log</div>
+              <div class="nav-item"><div class="nav-icon"></div>My Lures</div>
+              <div class="nav-item"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-item"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-item"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-item active"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

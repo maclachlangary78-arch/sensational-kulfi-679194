@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LureRater - App Store Screenshots</title>
+    <style>
+      :root {
+        --bg: #020817;
+        --panel: #0f172a;
+        --line: #1e293b;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --cyan: #22d3ee;
+        --green: #34d399;
+        --red: #f87171;
+        --amber: #fbbf24;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #0a0a0a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: var(--text);
+      }
+
+      .header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        letter-spacing: -0.5px;
+      }
+
+      .header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .screenshots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1920px;
+        width: 100%;
+      }
+
+      .screenshot-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .screenshot {
+        width: 100%;
+        max-width: 390px;
+        aspect-ratio: 9 / 20;
+        background: #020617;
+        border-radius: 40px;
+        padding: 12px;
+        border: 8px solid #000;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 120px rgba(34, 211, 238, 0.15);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .screen-content {
+        flex: 1;
+        background: #020817;
+        border-radius: 32px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--text);
+      }
+
+      .header-bar {
+        background: rgba(2, 6, 23, 0.98);
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+      }
+
+      .brand-text h3 {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .brand-text small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 1px;
+      }
+
+      .content-area {
+        flex: 1;
+        padding: 16px;
+        overflow: hidden;
+      }
+
+      .title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--cyan);
+        margin: 0 0 12px;
+      }
+
+      .subtitle {
+        font-size: 22px;
+        font-weight: 800;
+        color: #f8fafc;
+        line-height: 1.2;
+        margin: 0 0 8px;
+      }
+
+      .description {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0 0 16px;
+      }
+
+      .feature-list {
+        font-size: 10px;
+        color: #cbd5e1;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .feature-list li {
+        margin: 6px 0;
+        padding-left: 18px;
+        position: relative;
+      }
+
+      .feature-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--green);
+        font-weight: 800;
+      }
+
+      .button-primary {
+        display: inline-block;
+        background: linear-gradient(90deg, var(--cyan), #0ea5e9);
+        color: #020617;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 11px;
+        text-decoration: none;
+        margin-top: 12px;
+      }
+
+      .card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      .card-item {
+        display: flex;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      .card-item:last-child {
+        border-bottom: none;
+      }
+
+      .card-thumb {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+        flex-shrink: 0;
+      }
+
+      .card-text h4 {
+        margin: 0;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .card-text p {
+        margin: 2px 0 0;
+        font-size: 9px;
+        color: var(--muted);
+      }
+
+      .stat {
+        display: inline-block;
+        background: rgba(34, 211, 238, 0.12);
+        border: 1px solid rgba(34, 211, 238, 0.25);
+        color: var(--cyan);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 9px;
+        font-weight: 700;
+        margin-left: auto;
+      }
+
+      .footer-nav {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 2px;
+        padding: 6px;
+        border-top: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.95);
+      }
+
+      .nav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 0;
+        font-size: 7px;
+        color: #64748b;
+        gap: 3px;
+      }
+
+      .nav-btn.active {
+        color: var(--cyan);
+      }
+
+      .nav-icon {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        background: currentColor;
+        opacity: 0.5;
+      }
+
+      .nav-btn.active .nav-icon {
+        opacity: 1;
+      }
+
+      .screenshot-label {
+        margin-top: 16px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .download-section {
+        margin-top: 50px;
+        text-align: center;
+        padding: 40px 20px;
+        background: rgba(15, 23, 42, 0.4);
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        max-width: 600px;
+      }
+
+      .download-section h2 {
+        color: var(--text);
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+
+      .download-section p {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 0 0 20px;
+      }
+
+      .download-btn {
+        display: inline-block;
+        background: linear-gradient(90deg, var(--cyan), #0ea5e9);
+        color: #020617;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 13px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .instructions {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(34, 211, 238, 0.08);
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        border-radius: 12px;
+        text-align: left;
+        max-width: 600px;
+      }
+
+      .instructions h3 {
+        color: var(--cyan);
+        margin: 0 0 12px;
+        font-size: 13px;
+      }
+
+      .instructions ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .instructions li {
+        margin-bottom: 8px;
+      }
+
+      @media (max-width: 768px) {
+        .screenshots-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+          font-size: 24px;
+        }
+      }
+
+      @page {
+        size: letter;
+        margin: 0;
+      }
+
+      @media print {
+        body { background: white; }
+        .download-section, .instructions { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>LureRater</h1>
+      <p>App Store Screenshot Set - Ready to Use</p>
+    </div>
+
+    <div class="screenshots-grid">
+      <!-- Screenshot 1: Record Strike -->
+      <div class="screenshot-container">
+        <div class="screenshot">
+          <div class="screen-content">
+            <div class="header-bar">
+              <div class="brand-info">
+                <div class="brand-icon"></div>
+                <div class="brand-text">
+                  <h3>LureRater</h3>
+                  <small>Record Strike</small>
+                </div>
+              </div>
+            </div>
+            <div class="content-area">
+              <div class="title">Log Your Catch</div>
+              <div class="subtitle">One tap to record</div>
+              <div class="description">Instantly log strikes with lure, position, conditions and outcome. Offline support keeps your data safe.</div>
+
+              <ul class="feature-list">
+                <li>Real-time GPS & sea temp</li>
+                <li>Full spread configuration</li>
+                <li>Photo attachment</li>
+                <li>Automatic cloud sync</li>
+              </ul>
+            </div>
+            <div class="footer-nav">
+              <div class="nav-btn active"><div class="nav-icon"></div>Log</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Lures</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-label">1. Log Strikes</div>
+      </div>
+
+      <!-- Screenshot 2: My Lures -->
+      <div class="screenshot-container">
+        <div class="screenshot">
+          <div class="screen-content">
+            <div class="header-bar">
+              <div class="brand-info">
+                <div class="brand-icon"></div>
+                <div class="brand-text">
+                  <h3>LureRater</h3>
+                  <small>My Lures</small>
+                </div>
+              </div>
+            </div>
+            <div class="content-area">
+              <div class="title">Your Tackle Box</div>
+              <div class="subtitle">Curated catalog</div>
+              <div class="description">Build your collection with brand models, colours and sizes. Track which lures work best.</div>
+
+              <div class="card">
+                <div class="card-item">
+                  <div class="card-thumb"></div>
+                  <div class="card-text">
+                    <h4>Pakula Sprocket</h4>
+                    <p>310mm · Long Rigger</p>
+                  </div>
+                  <div class="stat">64%</div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #0f766e, #22d3ee);"></div>
+                  <div class="card-text">
+                    <h4>JB Dingo Black</h4>
+                    <p>10" · Short Rigger</p>
+                  </div>
+                  <div class="stat">51%</div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #7c3aed, #06b6d4);"></div>
+                  <div class="card-text">
+                    <h4>Bonze Rambo</h4>
+                    <p>10" · Short Corner</p>
+                  </div>
+                  <div class="stat">42%</div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-nav">
+              <div class="nav-btn"><div class="nav-icon"></div>Log</div>
+              <div class="nav-btn active"><div class="nav-icon"></div>Lures</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-label">2. My Lures</div>
+      </div>
+
+      <!-- Screenshot 3: Leaderboard -->
+      <div class="screenshot-container">
+        <div class="screenshot">
+          <div class="screen-content">
+            <div class="header-bar">
+              <div class="brand-info">
+                <div class="brand-icon"></div>
+                <div class="brand-text">
+                  <h3>LureRater</h3>
+                  <small>Rankings</small>
+                </div>
+              </div>
+            </div>
+            <div class="content-area">
+              <div class="title">Lure Leaderboard</div>
+              <div class="subtitle">Your winners</div>
+              <div class="description">See which lures are catching the most fish. Ranked by success rate across all positions and conditions.</div>
+
+              <div class="card">
+                <div class="card-item">
+                  <div class="card-thumb"></div>
+                  <div class="card-text">
+                    <h4>#1 Pakula Sprocket</h4>
+                    <p>64% success · 16 landed</p>
+                  </div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);"></div>
+                  <div class="card-text">
+                    <h4>#2 JB Dingo</h4>
+                    <p>51% success · 29 landed</p>
+                  </div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #8b5cf6, #06b6d4);"></div>
+                  <div class="card-text">
+                    <h4>#3 Bonze Rambo</h4>
+                    <p>42% success · 12 landed</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-nav">
+              <div class="nav-btn"><div class="nav-icon"></div>Log</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Lures</div>
+              <div class="nav-btn active"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-label">3. Rankings</div>
+      </div>
+
+      <!-- Screenshot 4: Spreads -->
+      <div class="screenshot-container">
+        <div class="screenshot">
+          <div class="screen-content">
+            <div class="header-bar">
+              <div class="brand-info">
+                <div class="brand-icon"></div>
+                <div class="brand-text">
+                  <h3>LureRater</h3>
+                  <small>Spreads</small>
+                </div>
+              </div>
+            </div>
+            <div class="content-area">
+              <div class="title">Save Your Spread</div>
+              <div class="subtitle">Set and reload</div>
+              <div class="description">Save complete boat setups by name. Reload proven spreads on future trips. No more guessing.</div>
+
+              <div class="card">
+                <div class="card-item">
+                  <div class="card-thumb"></div>
+                  <div class="card-text">
+                    <h4>Wahoo · Shelf</h4>
+                    <p>5 lines · Last used 9/26</p>
+                  </div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #0f766e, #22d3ee);"></div>
+                  <div class="card-text">
+                    <h4>Striped Marlin</h4>
+                    <p>4 lines · Last used 9/20</p>
+                  </div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #7c3aed, #06b6d4);"></div>
+                  <div class="card-text">
+                    <h4>Yellowfin Deep</h4>
+                    <p>6 lines · Last used 9/15</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-nav">
+              <div class="nav-btn"><div class="nav-icon"></div>Log</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Lures</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-btn active"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-label">4. Saved Spreads</div>
+      </div>
+
+      <!-- Screenshot 5: Advanced Analytics -->
+      <div class="screenshot-container">
+        <div class="screenshot">
+          <div class="screen-content">
+            <div class="header-bar">
+              <div class="brand-info">
+                <div class="brand-icon"></div>
+                <div class="brand-text">
+                  <h3>LureRater</h3>
+                  <small>Analytics</small>
+                </div>
+              </div>
+            </div>
+            <div class="content-area">
+              <div class="title">Advanced Stats</div>
+              <div class="subtitle">Premium insights</div>
+              <div class="description">Unlock deep analytics. Performance by species, location, season and more. Export reports.</div>
+
+              <ul class="feature-list">
+                <li>Success rate by species</li>
+                <li>Position performance</li>
+                <li>Seasonal trends</li>
+                <li>Advanced filtering</li>
+                <li>Export to PDF</li>
+              </ul>
+
+              <div style="text-align: center; margin-top: 16px;">
+                <span class="button-primary">Premium $2/mo</span>
+              </div>
+            </div>
+            <div class="footer-nav">
+              <div class="nav-btn"><div class="nav-icon"></div>Log</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Lures</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-btn active"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-label">5. Premium Analytics</div>
+      </div>
+
+      <!-- Screenshot 6: Community Data -->
+      <div class="screenshot-container">
+        <div class="screenshot">
+          <div class="screen-content">
+            <div class="header-bar">
+              <div class="brand-info">
+                <div class="brand-icon"></div>
+                <div class="brand-text">
+                  <h3>LureRater</h3>
+                  <small>Community</small>
+                </div>
+              </div>
+            </div>
+            <div class="content-area">
+              <div class="title">Community Insights</div>
+              <div class="subtitle">Learn from anglers worldwide</div>
+              <div class="description">Share anonymous catch data. See what's working for each species. Discover top lures globally.</div>
+
+              <div class="card">
+                <div class="card-item">
+                  <div class="card-thumb"></div>
+                  <div class="card-text">
+                    <h4>Wahoo · Pakula</h4>
+                    <p>Top 3% · 64% success</p>
+                  </div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #0f766e, #22d3ee);"></div>
+                  <div class="card-text">
+                    <h4>Marlin · JB Dingo</h4>
+                    <p>High · 51% success</p>
+                  </div>
+                </div>
+                <div class="card-item">
+                  <div class="card-thumb" style="background: linear-gradient(135deg, #7c3aed, #06b6d4);"></div>
+                  <div class="card-text">
+                    <h4>Yellowfin · Bonze</h4>
+                    <p>Growing · 42% success</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-nav">
+              <div class="nav-btn"><div class="nav-icon"></div>Log</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Lures</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Ranks</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Spread</div>
+              <div class="nav-btn"><div class="nav-icon"></div>Hooks</div>
+              <div class="nav-btn active"><div class="nav-icon"></div>Share</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-label">6. Community Data</div>
+      </div>
+    </div>
+
+    <div class="download-section">
+      <h2>Download Screenshots</h2>
+      <p>Use these screenshots in App Store Connect for your product listing.</p>
+      <button class="download-btn" onclick="downloadScreenshots()">Save as PDF</button>
+      <p style="font-size: 11px; margin-top: 12px; color: #64748b;">Or right-click any screenshot above to save as PNG.</p>
+    </div>
+
+    <div class="instructions">
+      <h3>How to Use in App Store Connect</h3>
+      <ol>
+        <li><strong>Save this page:</strong> Open in Chrome/Safari, print to PDF, or screenshot each phone above.</li>
+        <li><strong>Crop to size:</strong> App Store requires 6.5" screenshots at 1290×2796px or 1242×2688px</li>
+        <li><strong>Upload to App Store Connect:</strong> Go to your app → Pricing and Availability → Screenshots</li>
+        <li><strong>Add captions:</strong> Each screenshot can have text overlay in App Store Connect (recommended character limits: title 30 chars, subtitle 30 chars, description 170 chars)</li>
+        <li><strong>Order:</strong> Arrange screenshots in order shown (Log → Lures → Ranks → Spreads → Premium → Community)</li>
+      </ol>
+    </div>
+
+    <script>
+      function downloadScreenshots() {
+        window.print();
+      }
+    </script>
+  </body>
+</html>
