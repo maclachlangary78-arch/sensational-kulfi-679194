@@ -55,7 +55,24 @@ jobs:
         run: npx cap sync ios
 
       - name: Set up code signing
+        env:
+          CERTIFICATE_DATA: ${{ secrets.CERTIFICATE_DATA }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_DATA: ${{ secrets.PROVISIONING_PROFILE_DATA }}
         run: |
+          set -euo pipefail
+
+          decode_base64_secret() {
+            local name="$1"
+            local value="$2"
+            local output="$3"
+            if ! printf '%s' "$value" | tr -d '[:space:]' | base64 --decode > "$output"; then
+              rm -f "$output"
+              printf 'Invalid base64 in %s; re-encode the source file and update the repository secret.\n' "$name" >&2
+              return 1
+            fi
+          }
+
           # Create a keychain
           security create-keychain -p "" build.keychain
           security list-keychains -d user -s build.keychain
@@ -64,12 +81,12 @@ jobs:
           security unlock-keychain -p "" build.keychain
           
           # Import certificate
-          echo "${{ secrets.CERTIFICATE_DATA }}" | base64 --decode > certificate.p12
-          security import certificate.p12 -k build.keychain -P "${{ secrets.CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          decode_base64_secret CERTIFICATE_DATA "$CERTIFICATE_DATA" certificate.p12
+          security import certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
           
           # Import provisioning profile
-          echo "${{ secrets.PROVISIONING_PROFILE_DATA }}" | base64 --decode > profile.mobileprovision
+          decode_base64_secret PROVISIONING_PROFILE_DATA "$PROVISIONING_PROFILE_DATA" profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
