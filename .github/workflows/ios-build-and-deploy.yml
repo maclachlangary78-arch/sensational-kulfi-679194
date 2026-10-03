@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Verify required secrets are configured
         env:
-          CERTIFICATE_DATA: ${{ secrets.CERTIFICATE_DATA }}
+          CERTIFICATE_DATA: ${{ secrets.DISTRIBUTIONCERTIFICATE }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
           PROVISIONING_PROFILE_DATA: ${{ secrets.PROVISIONING_PROFILE_DATA }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -25,7 +25,10 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           missing=()
-          for name in CERTIFICATE_DATA CERTIFICATE_PASSWORD PROVISIONING_PROFILE_DATA \
+          if [ -z "$CERTIFICATE_DATA" ]; then
+            missing+=("DISTRIBUTIONCERTIFICATE")
+          fi
+          for name in CERTIFICATE_PASSWORD PROVISIONING_PROFILE_DATA \
             APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID \
             APP_STORE_CONNECT_PRIVATE_KEY APPLE_TEAM_ID; do
             if [ -z "${!name}" ]; then
@@ -58,7 +61,7 @@ jobs:
 
       - name: Set up code signing
         env:
-          CERTIFICATE_DATA: ${{ secrets.CERTIFICATE_DATA }}
+          CERTIFICATE_DATA: ${{ secrets.DISTRIBUTIONCERTIFICATE }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
           PROVISIONING_PROFILE_DATA: ${{ secrets.PROVISIONING_PROFILE_DATA }}
         run: |
