@@ -72,7 +72,7 @@ jobs:
               2) encoded="${encoded}==" ;;
               3) encoded="${encoded}=" ;;
             esac
-            if ! printf '%s' "$encoded" | base64 --decode > "$output" 2>/dev/null; then
+            if ! printf '%s' "$encoded" | base64 -D > "$output" 2>/dev/null; then
               rm -f "$output"
               echo "::error::$name must contain base64-encoded file contents."
               return 1
@@ -160,7 +160,7 @@ jobs:
             fi
           else
             encoded="$(printf '%s' "$raw_key" | tr -d '[:space:]')"
-            if ! printf '%s' "$encoded" | base64 --decode > "$key_path" 2>/dev/null; then
+            if ! printf '%s' "$encoded" | base64 -D > "$key_path" 2>/dev/null; then
               echo "::error::APP_STORE_CONNECT_PRIVATE_KEY is neither PEM text nor base64-encoded PEM."
               exit 1
             fi
