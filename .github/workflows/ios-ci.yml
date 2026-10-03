@@ -88,3 +88,29 @@ jobs:
             cat "$test_log"
             exit 1
           fi
+
+      - name: Archive App
+        working-directory: ios/App
+        env:
+          scheme: default
+          configuration: Release
+        run: |
+          set -euo pipefail
+          if [ "$scheme" = default ]; then scheme=$(cat default); fi
+
+          archive_path="$RUNNER_TEMP/App.xcarchive"
+          echo "Creating archive for scheme: $scheme"
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme "$scheme" \
+            -configuration "$configuration" \
+            -sdk iphoneos \
+            -archivePath "$archive_path" \
+            archive \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload iOS archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-archive
+          path: ${{ runner.temp }}/App.xcarchive
